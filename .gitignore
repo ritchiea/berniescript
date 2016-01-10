@@ -1,3 +1,6 @@
+last_run
+status
+*.log
 *.gem
 *.rbc
 /.config
