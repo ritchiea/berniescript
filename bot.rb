@@ -16,7 +16,7 @@ begin
   puts "connecting to client"
   tc = TwitterClient.new
   puts "getting latest"
-  latest = tc.client.user_timeline('berniebot_').first
+  latest = tc.client.user_timeline('the_fire_berns').first
   tweets = []
   if latest
     puts "getting tweets"
