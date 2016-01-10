@@ -1,5 +1,10 @@
 require "/home/ar/projects/berniescript/twitter_client.rb"
 
+def overwrite_status
+  f = File.new("status", "w+")
+  f.close
+end
+
 begin
   File.open("status", "r") do |f|
     if f.read.match("progress")
@@ -16,27 +21,42 @@ begin
   puts "connecting to client"
   tc = TwitterClient.new
   puts "getting latest"
-  latest = tc.client.user_timeline('the_fire_berns').first
+  #latest = tc.client.user_timeline('the_fire_berns').first
+  latest_file = File.open("last_tweet", "r")
+  latest = latest_file.read.gsub("\n",'')
+  latest_file.close
   tweets = []
   if latest
     puts "getting tweets"
-    tc.client.search('"feel the bern" -rt', since_id: latest.id).each do |tweet|
+    berns = tc.client.search('"feel the bern" -rt', since_id: latest)
+    puts berns.inspect
+    berns.each do |tweet|
       tweets << tweet
     end
   else
-    tc.client.search('"feel the bern" -rt', result_type: "recent").each do |tweet|
-      puts tweet.inspect
-      tweets << tweet
-    end
+    puts "no last tweet"
+    overwrite_status
+    abort
+    #tc.client.search('"feel the bern" -rt', result_type: "recent").each do |tweet|
+    #  puts tweet.inspect
+    #  tweets << tweet
+    #end
   end
   tweets.reverse.each_with_index do |tweet, i|
     puts "retweeting..."
     puts tweet.inspect
     tc.client.retweet(tweet)
-    sleep 10 if i < tweets.length - 1
+    if i < tweets.length - 1
+      sleep 10 
+    end
+    if i == tweets.length - 1
+      #last tweet
+      last_tweet = File.new("last_tweet", "w+")
+      last_tweet.write tweet.id
+      last_tweet.close
+    end
   end
-  f = File.new("status", "w+")
-  f.close
+  overwrite_status
 rescue => e
   puts "failed"
   puts e.message
