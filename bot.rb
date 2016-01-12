@@ -5,19 +5,19 @@ def overwrite_status
   f.close
 end
 
-begin
-  File.open("status", "r") do |f|
-    if f.read.match("progress")
-      puts "another script in process"
-      abort
-    end
+File.open("status", "r") do |f|
+  if f.read.match("progress")
+    puts "another script in process"
+    abort
   end
-  f = File.new("status", "w+")
-  f.write "in progress\n"
-  f.close
-  f = File.new("last_run", "w+")
-  f.write "#{Time.now.to_s}\n"
-  f.close
+end
+f = File.new("status", "w+")
+f.write "in progress\n"
+f.close
+f = File.new("last_run", "w+")
+f.write "#{Time.now.to_s}\n"
+f.close
+begin
   puts "connecting to client"
   tc = TwitterClient.new
   puts "getting latest"
@@ -62,4 +62,12 @@ rescue => e
   puts e.message
   puts e.backtrace
   puts e.inspect
+  if e.message == 'You have already retweeted this tweet.'
+    latest = tc.client.user_timeline('the_fire_berns').first
+    last_tweet = File.new("last_tweet", "w+")
+    last_tweet.write latest.id
+    last_tweet.close
+  end
+ensure
+  overwrite_status
 end
