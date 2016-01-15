@@ -42,6 +42,9 @@ begin
     #  tweets << tweet
     #end
   end
+  if tweets.blank?
+    puts "no tweets"
+  end
   tweets.reverse.each_with_index do |tweet, i|
     puts "retweeting..."
     puts tweet.inspect
@@ -58,10 +61,11 @@ begin
       next
     end
     if i < tweets.length - 1
-      sleep 10 
+      sleep 5
     end
     if i == tweets.length - 1
       #last tweet
+      puts "writing last tweet #{tweet.id}"
       last_tweet = File.new("last_tweet", "w+")
       last_tweet.write tweet.id
       last_tweet.close
@@ -73,12 +77,6 @@ rescue StandardError => e
   puts e.message
   puts e.backtrace
   puts e.inspect
-  if e.message == 'You have already retweeted this tweet.'
-    latest = tc.client.user_timeline('the_fire_berns').first
-    last_tweet = File.new("last_tweet", "w+")
-    last_tweet.write latest.id
-    last_tweet.close
-  end
 ensure
   overwrite_status
 end
