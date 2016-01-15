@@ -45,7 +45,18 @@ begin
   tweets.reverse.each_with_index do |tweet, i|
     puts "retweeting..."
     puts tweet.inspect
-    tc.client.retweet(tweet)
+    begin
+      tc.client.retweet(tweet)
+    rescue Twitter::Error::Unauthorized
+      puts "can't retweet"
+      next
+    rescue Twitter::Error::Forbidden
+      puts "can't retweet"
+      next
+    rescue Twitter::Error::AlreadyRetweeted
+      puts "already retweeted"
+      next
+    end
     if i < tweets.length - 1
       sleep 10 
     end
@@ -57,7 +68,7 @@ begin
     end
   end
   overwrite_status
-rescue => e
+rescue StandardError => e
   puts "failed"
   puts e.message
   puts e.backtrace
