@@ -42,7 +42,7 @@ begin
     #  tweets << tweet
     #end
   end
-  if tweets.blank?
+  if tweets.empty?
     puts "no tweets"
   end
   tweets.reverse.each_with_index do |tweet, i|
